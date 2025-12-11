@@ -273,3 +273,11 @@ export function TicketIcon({ size = 18, color = "#111", className }: Props) {
     </svg>
   );
 }
+
+export function PaperClipIcon({ size = 16, color = "#111", className }: Props) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 13l7-7a3 3 0 1 1 4 4l-9 9a5 5 0 0 1-7-7l8-8" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

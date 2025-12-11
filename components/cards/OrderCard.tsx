@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlusIcon, StarIcon } from "../icons";
@@ -16,9 +16,29 @@ type Props = {
 };
 
 export default function OrderCard({ title, subtitle, rating, reviews, price, imageUrl, onQuickAdd, href }: Props) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const fallback = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=544&auto=format&fit=crop";
+  const src = imgError ? fallback : imageUrl;
   const Card = (
-    <div className="relative w-[272px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_4px_16px_rgba(10,14,18,0.06)]">
-      <Image src={imageUrl} alt={title} width={544} height={280} unoptimized className="h-[140px] w-full object-cover" />
+    <div className="group relative w-[272px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_4px_16px_rgba(10,14,18,0.06)]">
+      <div className="relative h-[140px] w-full overflow-hidden">
+        <Image
+          src={src}
+          alt={title}
+          width={544}
+          height={280}
+          sizes="(max-width: 768px) 272px, 272px"
+          unoptimized
+          loading="lazy"
+          className={`h-[140px] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+          onLoadingComplete={() => setImgLoaded(true)}
+          onError={() => setImgError(true)}
+        />
+        {!imgLoaded && (
+          <div aria-hidden className="absolute inset-0 animate-pulse bg-[#f3f4f6]" />
+        )}
+      </div>
       <button
         onClick={onQuickAdd}
         aria-label="Quick add"

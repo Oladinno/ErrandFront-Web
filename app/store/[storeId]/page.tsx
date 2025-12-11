@@ -38,8 +38,8 @@ export default function StoreDetailScreen({ params }: Props) {
         basePrice: 1200,
         imageUrl:
           i % 2 === 0
-            ? "https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=600&auto=format&fit=crop"
-            : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop",
+            ? "https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=70&w=176&auto=format&fit=crop"
+            : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=176&auto=format&fit=crop",
       })),
     []
   );

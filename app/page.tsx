@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import HomeTopBar from "../components/HomeTopBar";
 import Tabs from "../components/Tabs";
 import PromoSkeleton from "../components/PromoSkeleton";
@@ -18,6 +19,21 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"food" | "services">("food");
 
+  const makeImage = (src: string | undefined, w: number, h: number, q = 70) => {
+    const fallback = `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=${q}&w=${w}&auto=format&fit=crop`;
+    if (!src) return fallback;
+    try {
+      const u = new URL(src);
+      u.searchParams.set("q", String(q));
+      u.searchParams.set("w", String(w));
+      u.searchParams.set("auto", "format");
+      u.searchParams.set("fit", "crop");
+      return u.toString();
+    } catch {
+      return fallback;
+    }
+  };
+
   const recentOrders = useMemo(
     () => [
       {
@@ -27,8 +43,7 @@ export default function Home() {
         rating: 4.2,
         reviews: 31,
         price: "₦ 4,500",
-        imageUrl:
-          "https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 2,
@@ -37,8 +52,7 @@ export default function Home() {
         rating: 4.2,
         reviews: 26,
         price: "₦ 4,800",
-        imageUrl:
-          "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 3,
@@ -47,8 +61,7 @@ export default function Home() {
         rating: 4.2,
         reviews: 12,
         price: "₦ 4,500",
-        imageUrl:
-          "https://images.unsplash.com/photo-1617196037300-e3fb3ff5bbf3?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1617196037300-e3fb3ff5bbf3?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 4,
@@ -57,8 +70,7 @@ export default function Home() {
         rating: 4.2,
         reviews: 40,
         price: "₦ 4,500",
-        imageUrl:
-          "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
     ],
     []
@@ -73,8 +85,7 @@ export default function Home() {
         rating: 4.2,
         time: "10-25 mins",
         price: "₦ 1,300",
-        imageUrl:
-          "https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 12,
@@ -83,8 +94,7 @@ export default function Home() {
         rating: 4.2,
         time: "10-25 mins",
         price: "₦ 1,300",
-        imageUrl:
-          "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 13,
@@ -93,8 +103,7 @@ export default function Home() {
         rating: 4.2,
         time: "10-25 mins",
         price: "₦ 1,300",
-        imageUrl:
-          "https://images.unsplash.com/photo-1617196037300-e3fb3ff5bbf3?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1617196037300-e3fb3ff5bbf3?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
       {
         id: 14,
@@ -103,8 +112,7 @@ export default function Home() {
         rating: 4.2,
         time: "10-25 mins",
         price: "₦ 1,300",
-        imageUrl:
-          "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800&auto=format&fit=crop",
+        imageUrl: makeImage("https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=800&auto=format&fit=crop", 544, 280),
       },
     ],
     []
@@ -139,14 +147,20 @@ export default function Home() {
       time: "10-25 mins",
       price: "₦ 1,300",
       imageUrl: i % 2 === 0
-        ? "https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop"
-        : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop",
+        ? makeImage("https://images.unsplash.com/photo-1604908554052-2f67c3bde2e4?q=80&w=800&auto=format&fit=crop", 544, 248)
+        : makeImage("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=800&auto=format&fit=crop", 544, 248),
     })),
     []
   );
 
   const [activeCategory, setActiveCategory] = useState<string>("restaurants");
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const categoryIconMap: Record<string, string> = {
+    all: "/assets/categories/all-stores.svg",
+    restaurants: "/assets/categories/restaurants.svg",
+    groceries: "/assets/categories/groceries.svg",
+    convenience: "/assets/categories/convenience.svg",
+  };
 
   return (
     <div className="min-h-screen bg-[var(--color-surface-muted)]">
@@ -297,11 +311,9 @@ export default function Home() {
                     onClick={() => setActiveCategory(c.key)}
                     className="flex shrink-0 flex-col items-center"
                   >
-                    <div
-                      className={`flex h-[56px] w-[56px] items-center justify-center rounded-full border ${
-                        activeCategory === c.key ? "border-dashed border-[var(--color-green)]" : "border-[var(--color-border)]"
-                      } bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]`}
-                    />
+                    <div className={`flex h-[56px] w-[56px] items-center justify-center rounded-full border ${activeCategory === c.key ? "border-dashed border-[var(--color-green)]" : "border-[var(--color-border)]"} bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]`}>
+                      <Image src={categoryIconMap[c.key] || "/globe.svg"} alt={c.label} width={56} height={56} className="h-[48px] w-[48px] rounded-full object-contain" />
+                    </div>
                     <span className="mt-2 whitespace-nowrap text-[13px] font-medium text-[var(--color-text)]">{c.label}</span>
                   </button>
                 ))}

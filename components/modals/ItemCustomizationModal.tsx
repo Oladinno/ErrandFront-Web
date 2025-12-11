@@ -20,6 +20,10 @@ export default function ItemCustomizationModal({ open, onClose, item }: { open: 
   const [style, setStyle] = useState<string | null>(null);
   const [sides, setSides] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  const [heroError, setHeroError] = useState(false);
+  const [previewLoaded, setPreviewLoaded] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
   const numberFormatter = useMemo(() => new Intl.NumberFormat("en-US", { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 0 }), []);
 
   const radioOptions = useMemo(
@@ -74,7 +78,18 @@ export default function ItemCustomizationModal({ open, onClose, item }: { open: 
         style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
       >
         <div className="relative h-[220px] w-full overflow-hidden">
-          <Image src={item.imageUrl} alt={item.title} width={1600} height={800} unoptimized className="h-full w-full object-cover" />
+          <Image
+            src={heroError || !item.imageUrl ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=1600&auto=format&fit=crop" : item.imageUrl}
+            alt={item.title}
+            width={1600}
+            height={800}
+            sizes="100vw"
+            unoptimized
+            className={`h-full w-full object-cover ${heroLoaded ? "opacity-100" : "opacity-0"}`}
+            onLoadingComplete={() => setHeroLoaded(true)}
+            onError={() => setHeroError(true)}
+          />
+          {!heroLoaded && <div aria-hidden className="absolute inset-0 animate-pulse bg-[#f3f4f6]" />}
           <div className="absolute inset-x-0 top-0 flex h-[56px] items-center justify-between px-4">
             <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30">
               <ArrowLeft />
@@ -101,9 +116,22 @@ export default function ItemCustomizationModal({ open, onClose, item }: { open: 
                 <XIcon />
               </button>
             </div>
-            <div className="mt-2 overflow-hidden rounded-xl">
-              <Image src={item.imageUrl} alt={item.title} width={1200} height={800} unoptimized className="h-[140px] w-full object-cover" />
+          <div className="mt-2 overflow-hidden rounded-xl">
+            <div className="relative h-[140px] w-full">
+              <Image
+                src={previewError || !item.imageUrl ? "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=1200&auto=format&fit=crop" : item.imageUrl}
+                alt={item.title}
+                width={1200}
+                height={800}
+                sizes="(max-width: 768px) 100vw, 720px"
+                unoptimized
+                className={`h-[140px] w-full object-cover ${previewLoaded ? "opacity-100" : "opacity-0"}`}
+                onLoadingComplete={() => setPreviewLoaded(true)}
+                onError={() => setPreviewError(true)}
+              />
+              {!previewLoaded && <div aria-hidden className="absolute inset-0 animate-pulse bg-[#f3f4f6]" />}
             </div>
+          </div>
             <div className="mt-3 flex items-start justify-between">
               <div>
                 <div className="text-[16px] font-semibold text-[var(--color-text)]">{item.title}</div>

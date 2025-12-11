@@ -12,13 +12,28 @@ export default function CartPage() {
   const router = useRouter();
   const { items, removeItem, updateQuantity, isMutating } = useCart();
   const [error, setError] = useState<string | null>(null);
+  const makeImage = (src: string | undefined, w: number, h: number, q = 70) => {
+    const fallback = `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=${q}&w=${w}&auto=format&fit=crop`;
+    if (!src) return fallback;
+    try {
+      const u = new URL(src);
+      u.searchParams.set("q", String(q));
+      u.searchParams.set("w", String(w));
+      u.searchParams.set("auto", "format");
+      u.searchParams.set("fit", "crop");
+      return u.toString();
+    } catch {
+      return fallback;
+    }
+  };
+
   const rows: CartRow[] = items.map((it, i) => ({
     id: it.id ?? i + 1,
     name: it.title,
     description: it.options?.map((o) => o.label).join(" + ") || "Main",
     price: it.basePrice + (it.options?.reduce((a, o) => a + o.price, 0) || 0),
     quantity: it.quantity,
-    image: it.imageUrl || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop",
+    image: makeImage(it.imageUrl, 176, 176, 70),
   }));
   const [currentStep, setCurrentStep] = useState<"cart" | "checkout">("cart");
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
@@ -65,7 +80,7 @@ export default function CartPage() {
               <div key={r.id} className="rounded-2xl border border-[var(--color-border)] bg-white p-3 shadow-[0_2px_10px_rgba(10,14,18,0.05)]">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <Image src={r.image} alt={r.name} width={88} height={88} unoptimized className="h-[64px] w-[64px] rounded-xl object-cover" />
+                    <Image src={r.image} alt={r.name} width={176} height={176} sizes="(max-width: 768px) 64px, 64px" unoptimized loading="lazy" className="h-[64px] w-[64px] rounded-xl object-cover" />
                     <div>
                       <div className="text-[14px] font-semibold text-[var(--color-text)]">{r.name}</div>
                       <div className="mt-1 text-[12px] text-[var(--color-text-muted)]">{r.description}</div>

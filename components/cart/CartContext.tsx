@@ -1,6 +1,8 @@
 "use client";
 import React, { createContext, useContext, useMemo, useState } from "react";
 
+const fallbackImage = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=176&auto=format&fit=crop";
+
 type CartOption = { type: "radio" | "checkbox"; key: string; label: string; price: number };
 type CartItem = {
   id?: string | number;
@@ -30,7 +32,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = (item: CartItem) => {
     setIsMutating(true);
-    setItems((prev) => [...prev, item]);
+    const withImage = item.imageUrl && item.imageUrl.length > 0 ? item : { ...item, imageUrl: fallbackImage };
+    setItems((prev) => [...prev, withImage]);
     setIsMutating(false);
   };
 

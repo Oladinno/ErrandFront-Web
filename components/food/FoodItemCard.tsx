@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { HeartIcon, PlusIcon, StarIcon } from "../icons";
 
@@ -13,10 +13,28 @@ type Props = {
 };
 
 export default function FoodItemCard({ title, rating, reviews, price, imageUrl, onClick }: Props) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const fallback = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=70&w=176&auto=format&fit=crop";
+  const src = imgError ? fallback : imageUrl;
   return (
     <div onClick={onClick} className="flex cursor-pointer items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white p-3 shadow-[0_2px_10px_rgba(10,14,18,0.05)]">
       <div className="flex items-center gap-3">
-        <Image src={imageUrl} alt={title} width={88} height={88} unoptimized className="h-[64px] w-[64px] rounded-xl object-cover" />
+        <div className="relative h-[64px] w-[64px] overflow-hidden rounded-xl">
+          <Image
+            src={src}
+            alt={title}
+            width={176}
+            height={176}
+            sizes="(max-width: 768px) 64px, 64px"
+            unoptimized
+            loading="lazy"
+            className={`h-[64px] w-[64px] rounded-xl object-cover ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+            onLoadingComplete={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
+          />
+          {!imgLoaded && <div aria-hidden className="absolute inset-0 animate-pulse rounded-xl bg-[#f3f4f6]" />}
+        </div>
         <div>
           <div className="line-clamp-1 text-[14px] font-semibold text-[var(--color-text)]">{title}</div>
           <div className="mt-1 flex items-center gap-1 text-[12px] text-[var(--color-text-muted)]">

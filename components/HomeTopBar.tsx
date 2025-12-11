@@ -1,7 +1,8 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { BellIcon, CartIcon, ChatIcon, ChevronDown, HamburgerIcon, LocationPin, TrashIcon } from "./icons";
+import { BellIcon, CartIcon, ChevronDown, HamburgerIcon, LocationPin, TrashIcon } from "./icons";
+import MessageButton from "./messages/MessageButton";
 import { useCart } from "./cart/CartContext";
 
 type Props = {
@@ -25,9 +26,7 @@ export default function HomeTopBar({ onMenuToggle }: Props) {
         <ChevronDown size={16} color="#6b7280" />
       </div>
       <div className="flex items-center gap-2">
-        <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-          <ChatIcon size={20} />
-        </button>
+        <MessageButton />
         <div className="relative">
           <Link
             href="/cart"

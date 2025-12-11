@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ChatIcon, ChevronDown, BikeIcon } from "../../../components/icons";
+import { ArrowLeft, ChevronDown, BikeIcon } from "../../../components/icons";
+import MessageButton from "../../../components/messages/MessageButton";
 import { useCart } from "../../../components/cart/CartContext";
 
 type MLMap = {
@@ -144,7 +145,7 @@ export default function OrderTrackingPage() {
   return (
     <div className="min-h-screen bg-[var(--color-surface-muted)]">
       <div className="relative">
-        <div className="h-[60vh] w-full overflow-hidden">
+        <div className="h-[85vh] w-full overflow-hidden"> {/* Height adjusted */}
           <div className="relative h-full w-full">
             <div ref={mapRef} className="h-full w-full" />
             <div className="absolute left-4 top-4 flex items-center justify-between rounded-full bg-white px-3 py-2 shadow-[0_2px_10px_rgba(10,14,18,0.08)]">
@@ -159,7 +160,7 @@ export default function OrderTrackingPage() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-30">
+        <div className="absolute bottom-[-160px] left-0 right-0 z-30"> {/* Position adjusted */}
           <div className="mx-auto max-w-lg rounded-t-2xl border border-[var(--color-border)] bg-white p-3 shadow-[0_-8px_24px_rgba(0,0,0,0.12)]">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-6">
@@ -203,7 +204,7 @@ export default function OrderTrackingPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => console.log("chat rider", orderId)} className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border)] bg-white"><ChatIcon size={16} /></button>
+                    <MessageButton className="h-8 w-8" href={`/messages/${orderId}?name=${encodeURIComponent("Micheal John")}&type=rider`} />
                     <button onClick={() => console.log("call rider", orderId)} className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border)] bg-white">📞</button>
                   </div>
                 </div>
