@@ -34,3 +34,60 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Google Maps Integration
+
+### Environment Setup
+
+Create a `.env.local` file in the project root and set:
+
+```
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_KEY
+```
+
+Use the provided API key by replacing `YOUR_GOOGLE_MAPS_KEY` with your key.
+
+### Component Usage
+
+Import and render the map component:
+
+```tsx
+import GoogleMap from "./components/maps/GoogleMap";
+
+export default function Page() {
+  return (
+    <GoogleMap
+      center={{ lat: 6.869, lng: 3.653 }}
+      zoom={12}
+      mapTypeId="roadmap"
+      height={360}
+      width="100%"
+    />
+  );
+}
+```
+
+### Props
+
+- `center`: `{ lat: number; lng: number }` initial center
+- `zoom`: `number` initial zoom
+- `mapTypeId`: `"roadmap" | "satellite" | "terrain" | "hybrid"`
+- `height`: `number | string`
+- `width`: `number | string`
+- `className`: `string`
+- `onReady`: `() => void`
+- `onError`: `(message: string) => void`
+
+### Controls
+
+- Zoom control, fullscreen control, and map type selector are enabled by default.
+
+### Error Handling
+
+- Displays messages for script loading failure, invalid or missing API key, and connectivity issues.
+
+### Performance
+
+- Dynamically loads the Google Maps script once and reuses it.
+- Cleans up timers on unmount.
+- Debounces map option updates.

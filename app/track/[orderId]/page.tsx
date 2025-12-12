@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ChevronDown, BikeIcon } from "../../../components/icons";
 import MessageButton from "../../../components/messages/MessageButton";
 import { useCart } from "../../../components/cart/CartContext";
+import GoogleMap from "../../../components/maps/GoogleMap";
 
 type MLMap = {
   addControl: (c: unknown) => void;
@@ -26,75 +27,16 @@ export default function OrderTrackingPage() {
   const subtotal = useMemo(() => items.reduce((a, it) => a + (it.basePrice + (it.options?.reduce((s, o) => s + o.price, 0) || 0)) * (it.quantity || 1), 0), [items]);
 
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<unknown | null>(null);
-  const styleLoadedRef = useRef(false);
-  const [mapReady, setMapReady] = useState(false);
-  const [mapError, setMapError] = useState<string | null>(null);
+  const mapApiRef = useRef<{ map: any; google: any; setMarker: (id: string, pos: { lat: number; lng: number }) => void; setPath: (pts: { lat: number; lng: number }[]) => void } | null>(null);
   const [storeCoords] = useState<[number, number]>([3.653, 6.869]);
   const [destCoords] = useState<[number, number]>([3.689, 6.880]);
   const [riderCoords, setRiderCoords] = useState<[number, number]>([3.653, 6.869]);
   const wsRef = useRef<WebSocket | null>(null);
   const simRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css";
-    document.head.appendChild(link);
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js";
-    script.onload = () => setMapReady(true);
-    script.onerror = () => setMapError("Map failed to load");
-    document.body.appendChild(script);
-  }, []);
+  useEffect(() => {}, []);
 
-  useEffect(() => {
-    if (!mapReady || !mapRef.current || mapError) return;
-    const gl = (window as any).maplibregl;
-    if (!gl) return;
-    const map: MLMap = new gl.Map({
-      container: mapRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, attribution: "© OpenStreetMap" },
-          esri: { type: "raster", tiles: ["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"], tileSize: 256 }
-        },
-        layers: [{ id: "osm", type: "raster", source: "osm" }]
-      },
-      center: storeCoords,
-      zoom: 12,
-      pitchWithRotate: false,
-      dragRotate: false
-    });
-    mapInstanceRef.current = map;
-    map.addControl(new gl.NavigationControl());
-    new gl.Marker({ color: "#16a34a" }).setLngLat(storeCoords).addTo(map);
-    new gl.Marker({ color: "#ef4444" }).setLngLat(destCoords).addTo(map);
-    const riderMarker = new gl.Marker({ color: "#0ea5e9" }).setLngLat(storeCoords).addTo(map);
-    map.on("load", () => {
-      styleLoadedRef.current = true;
-      map.addSource("route", { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: [storeCoords, destCoords] } } });
-      map.addLayer({ id: "route", type: "line", source: "route", paint: { "line-color": "#10b981", "line-width": 4, "line-dasharray": [2, 2] } });
-      map.addSource("progress", { type: "geojson", data: { type: "Feature", geometry: { type: "LineString", coordinates: [storeCoords, storeCoords] } } });
-      map.addLayer({ id: "progress", type: "line", source: "progress", paint: { "line-color": "#0ea5e9", "line-width": 4 } });
-    });
-    const updateRider = (lngLat: [number, number]) => {
-      setRiderCoords(lngLat);
-      riderMarker.setLngLat(lngLat);
-      const src = map.getSource("progress") as { setData?: (d: unknown) => void } | null;
-      src?.setData?.({ type: "Feature", geometry: { type: "LineString", coordinates: [storeCoords, lngLat] } });
-    };
-    (map as MLMap)._updateRider = updateRider;
-    map.fitBounds([storeCoords, destCoords], { padding: 60 });
-    return () => {
-      styleLoadedRef.current = false;
-      map.remove();
-      mapInstanceRef.current = null;
-    };
-  }, [mapReady, mapError, storeCoords, destCoords]);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -106,8 +48,13 @@ export default function OrderTrackingPage() {
         try {
           const msg = JSON.parse(ev.data);
           if (msg.type === "location" && Array.isArray(msg.coords)) {
-            const map = mapInstanceRef.current as MLMap | null;
-            map?._updateRider?.([msg.coords[0], msg.coords[1]]);
+            setRiderCoords([msg.coords[0], msg.coords[1]]);
+            const api = mapApiRef.current;
+            api?.setMarker("rider", { lat: msg.coords[1], lng: msg.coords[0] });
+            api?.setPath([
+              { lat: storeCoords[1], lng: storeCoords[0] },
+              { lat: msg.coords[1], lng: msg.coords[0] }
+            ]);
           }
           if (msg.type === "status" && typeof msg.status === "string") {
             const s = msg.status as any;
@@ -127,8 +74,12 @@ export default function OrderTrackingPage() {
         t += 0.02;
         const lng = storeCoords[0] + (destCoords[0] - storeCoords[0]) * Math.min(1, t);
         const lat = storeCoords[1] + (destCoords[1] - storeCoords[1]) * Math.min(1, t);
-        const map = mapInstanceRef.current as MLMap | null;
-        map?._updateRider?.([lng, lat]);
+        const api = mapApiRef.current;
+        api?.setMarker("rider", { lat, lng });
+        api?.setPath([
+          { lat: storeCoords[1], lng: storeCoords[0] },
+          { lat, lng }
+        ]);
         if (t >= 1) {
           window.clearInterval(simRef.current!);
           simRef.current = null;
@@ -147,7 +98,30 @@ export default function OrderTrackingPage() {
       <div className="relative">
         <div className="h-[85vh] w-full overflow-hidden"> {/* Height adjusted */}
           <div className="relative h-full w-full">
-            <div ref={mapRef} className="h-full w-full" />
+            <GoogleMap
+              center={{ lat: storeCoords[1], lng: storeCoords[0] }}
+              zoom={12}
+              mapTypeId="roadmap"
+              height="100%"
+              width="100%"
+              markers={[
+                { id: "store", position: { lat: storeCoords[1], lng: storeCoords[0] }, label: "S" },
+                { id: "dest", position: { lat: destCoords[1], lng: destCoords[0] }, label: "D" },
+                { id: "rider", position: { lat: riderCoords[1], lng: riderCoords[0] }, label: "R" }
+              ]}
+              onApiReady={(api) => {
+                mapApiRef.current = api;
+                const bounds = new api.google.maps.LatLngBounds(
+                  new api.google.maps.LatLng(storeCoords[1], storeCoords[0]),
+                  new api.google.maps.LatLng(destCoords[1], destCoords[0])
+                );
+                api.map.fitBounds(bounds);
+                api.setPath([
+                  { lat: storeCoords[1], lng: storeCoords[0] },
+                  { lat: riderCoords[1], lng: riderCoords[0] }
+                ]);
+              }}
+            />
             <div className="absolute left-4 top-4 flex items-center justify-between rounded-full bg-white px-3 py-2 shadow-[0_2px_10px_rgba(10,14,18,0.08)]">
               <button onClick={() => router.back()} className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-border)] bg-white">
                 <ArrowLeft color="#111" />
